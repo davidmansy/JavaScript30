@@ -43,19 +43,39 @@
   </div>
 
   <script>
-    function debounce(func, wait = 20, immediate = true) {
-      var timeout;
-      return function() {
-        var context = this, args = arguments;
-        var later = function() {
-          timeout = null;
-          if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
+    function debounce(fn, wait = 20, immediate = true) {
+      let timeout = null;
+
+      return function(...args) {
+        const callNow = immediate && !timeout;
+        const next = () => fn.apply(this, args);
+
         clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
+        setTimeout(next, wait);
+        if (callNow) {
+          next();
+        }
       };
+    }
+
+    window.addEventListener('scroll', debounce(checkSlide));
+
+    function checkSlide() {
+      const sliderImages = document.querySelectorAll('.slide-in');
+      sliderImages.forEach(sliderImage => {
+        const viewPortY = window.scrollY + window.innerHeight;
+        const halfImageY = sliderImage.offsetTop + sliderImage.height / 2;
+        const bottomImageY = sliderImage.offsetTop + sliderImage.height;
+
+        const isImageHalfShown = viewPortY > halfImageY;
+        const isNotScrolledPast = window.scrollY < bottomImageY;
+
+        if (isImageHalfShown && isNotScrolledPast) {
+          sliderImage.classList.add('active');
+        } else {
+          sliderImage.classList.remove('active');
+        }
+      })
     }
 
   </script>
