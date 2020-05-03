@@ -23,12 +23,75 @@
       <input type="text" name="item" placeholder="Item Name" required>
       <input type="submit" value="+ Add Item">
     </form>
+    <div class="mass-update-controls">
+      <button class="delete-items">Delete All</button>
+      <button class="check-items">Check All</button>
+      <button class="uncheck-items">Uncheck All</button>
+    </div>
+
   </div>
 
 <script>
-  const addItems = document.querySelector('.add-items');
-  const itemsList = document.querySelector('.plates');
-  const items = [];
+  const addItemsFormEl = document.querySelector('.add-items');
+  const itemsListEl = document.querySelector('.plates');
+  const deleteButtonEl = document.querySelector('.delete-items');
+  const checkButtonEl = document.querySelector('.check-items');
+  const uncheckButtonEl = document.querySelector('.uncheck-items');
+  let items = JSON.parse(localStorage.getItem('items')) || [];
+  init();
+
+  function addItem(e) {
+    e.preventDefault();
+    const text = this.querySelector('[name=item]').value;
+    items.push({
+      text,
+      done: false
+    });
+    displayList();
+    this.reset();
+  };
+
+  function populateList(items = [], listEl) {
+    listEl.innerHTML = items.map((item, i) => {
+      return `
+        <li>
+          <input type="checkbox" id="item${i}" data-index=${i} ${ item.done ? 'checked' : ''} />
+          <label for="item${i}">${item.text}</label>
+        </li>
+      `
+    }).join('');
+  };
+
+  function toggleDone(e) {
+    if (!e.target.matches('input')) return;
+    const index = e.target.dataset.index;
+    items[index].done = !items[index].done;
+    displayList();
+  }
+
+  function deleteAllItems(e) {
+    items = [];
+    displayList();
+  }
+
+  function updateAllItemsStatus(status) {
+    items.forEach(item => item.done = status);
+    displayList();
+  }
+
+  function displayList() {
+    populateList(items, itemsListEl);    
+    localStorage.setItem('items', JSON.stringify(items));
+  }
+
+  function init() {
+    addItemsFormEl.addEventListener('submit', addItem);
+    itemsListEl.addEventListener('click', toggleDone);
+    deleteButtonEl.addEventListener('click', deleteAllItems);
+    checkButtonEl.addEventListener('click', () => updateAllItemsStatus(true));
+    uncheckButtonEl.addEventListener('click', () => updateAllItemsStatus(false));
+    populateList(items, itemsListEl);
+  }
 
 </script>
 
