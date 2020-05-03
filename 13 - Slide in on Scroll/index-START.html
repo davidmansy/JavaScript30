@@ -43,25 +43,25 @@
   </div>
 
   <script>
+
     function debounce(fn, wait = 20, immediate = true) {
-      let timeout = null;
+      let timeoutId = null;
 
       return function(...args) {
-        const callNow = immediate && !timeout;
+        const callNow = immediate && !timeoutId;
         const next = () => fn.apply(this, args);
 
-        clearTimeout(timeout);
+        clearTimeout(timeoutId);
         setTimeout(next, wait);
-        if (callNow) {
-          next();
-        }
-      };
+        if (callNow) fn.apply(this, args);
+      }
     }
 
     window.addEventListener('scroll', debounce(checkSlide));
 
     function checkSlide() {
       const sliderImages = document.querySelectorAll('.slide-in');
+
       sliderImages.forEach(sliderImage => {
         const viewPortY = window.scrollY + window.innerHeight;
         const halfImageY = sliderImage.offsetTop + sliderImage.height / 2;
